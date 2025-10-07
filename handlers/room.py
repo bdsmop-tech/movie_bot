@@ -4,6 +4,7 @@ from sqlalchemy import select
 from services.rooms import create_room, get_room_by_code, join_room
 from database.db import async_session
 from database.models import Room
+import re  # <-- добавлено
 
 router = Router()
 
@@ -20,8 +21,8 @@ async def cb_room_join(c: types.CallbackQuery):
     await c.message.answer("Введите: <code>/join ABC123</code>")
 
 @router.message(F.text.regexp(r"^/join\s+([A-Z0-9]{6,8})$"))
-async def join_cmd(msg: types.Message, regexp: types.MessageText):
-    code = regexp.match.group(1)
+async def join_cmd(msg: types.Message, regexp: re.Match[str]):  # <-- заменено
+    code = regexp.group(1)  # <-- заменено (раньше было regexp.match.group(1))
     room = await get_room_by_code(code)
     if not room:
         await msg.answer("Комната не найдена или неактивна.")
